@@ -109,11 +109,25 @@ function MovieList({ movies, onSelectMovieID }) {
   );
 }
 
-function MovieDetails({ selectId, onCloseMovie }) {
+function MovieDetails({ selectId, onCloseMovie, onAddWatched }) {
   const [movie, setMovies] = useState({});
   const [isLoading, setIsloading] = useState(false);
 
   const { Title: title, Year: year, Released: released, Poster: poster, imdbRating, Runtime: runtime, Plot: plot, Genre: genre, Actors: actor, Director: director } = movie;
+
+  function handleAddWatched() {
+    const newWatchedMovie = {
+      imdbID: selectId,
+      title,
+      year,
+      poster,
+      imdbRating: Number(imdbRating),
+      runtime: Number(runtime.split(" ").at(0)),
+    };
+
+    onAddWatched(newWatchedMovie);
+    onCloseMovie();
+  }
 
   console.log(title, year);
 
@@ -162,6 +176,9 @@ function MovieDetails({ selectId, onCloseMovie }) {
             <p>Directed By: {director}</p>
             <div className="rating">
               <StartRating max={10} size={24} color="#fcc419" />
+              <button className="btn-add" onClick={handleAddWatched}>
+                + add To watched
+              </button>
             </div>
           </section>
         </>
@@ -184,7 +201,7 @@ function WatchedSummary({ watched }) {
         </p>
         <p>
           <span>🎬</span>
-          <span>{avgImdbRating}</span>
+          <span>{avgImdbRating.toFixed(1)}</span>
         </p>
         <p>
           <span>🌟</span>
@@ -192,7 +209,7 @@ function WatchedSummary({ watched }) {
         </p>
         <p>
           <span>⏳</span>
-          <span>{avgRuntime} min</span>
+          <span>{Math.trunc(avgRuntime)} min</span>
         </p>
       </div>
     </div>
@@ -202,8 +219,8 @@ function WatchedSummary({ watched }) {
 function WatchedItem({ movie }) {
   return (
     <li key={movie.imdbID}>
-      <img src={movie.Poster} alt={`${movie.Title} poster`} />
-      <h3>{movie.Title}</h3>
+      <img src={movie.poster} alt={`${movie.title} poster`} />
+      <h3>{movie.title}</h3>
       <div>
         <p>
           <span>🎬</span>
@@ -271,7 +288,7 @@ const API_KEY = "7c1bfaa8";
 
 export default function App() {
   const [movies, setMovies] = useState(tempMovieData);
-  const [watched, setWatched] = useState(tempWatchedData);
+  const [watched, setWatched] = useState([]);
   const [isLoading, setIsloading] = useState(false);
   const [error, setError] = useState();
   const [query, setQuery] = useState("oppenheimer");
@@ -283,6 +300,10 @@ export default function App() {
 
   function HandleClosedMovie() {
     setSelectedMovieId(null);
+  }
+
+  function HandleAddWatch(movie) {
+    setWatched((watched) => [...watched, movie]);
   }
 
   useEffect(() => {
@@ -325,7 +346,7 @@ export default function App() {
         </BoxMovies>
         <BoxMovies>
           {selectedMovieId ? (
-            <MovieDetails selectId={selectedMovieId} onCloseMovie={HandleClosedMovie} />
+            <MovieDetails selectId={selectedMovieId} onCloseMovie={HandleClosedMovie} onAddWatched={HandleAddWatch} />
           ) : (
             <>
               <WatchedSummary watched={watched} />
