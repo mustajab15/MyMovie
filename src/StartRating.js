@@ -42,12 +42,13 @@ function Start({ onRate, full, onHoverIn, onHoverOut, color, size }) {
   );
 }
 
-export default function StartRating({ max = 5, color, size }) {
+export default function StartRating({ max = 5, color, size, onSetRating }) {
   const [rating, setRating] = useState(0);
   const [tempRating, setTempRating] = useState(0);
 
   function handelRating(rating) {
     setRating(rating);
+    onSetRating(rating);
   }
 
   return (
